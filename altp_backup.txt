@@ -1,0 +1,498 @@
+<USER_REQUEST>
+Áp dụng toàn bộ quy định trong PROJECT_RULES.md (Liquid Glass, font Be Vietnam Pro, nút Sảnh Game, không dùng chữ PRO) để tích hợp Game thứ 7: "Ai Là Triệu Phú Công Giáo" (gameId: `ai-la-trieu-phu`).
+
+================================================================================
+YÊU CẦU KỸ THUẬT & TÍNH NĂNG CỐT LÕI (BẢO TỒN 100%)
+================================================================================
+
+1. TẢI VÀ SỬ DỤNG ÂM THANH LOCAL:
+   - Tải các file âm thanh về `public/sounds/trieu-phu/`:
+     + `intro.mp3`    <- http://vericath.org/wp-content/uploads/2026/07/ai-la-trieu-phu-mo-dau.mp3
+     + `suspense.mp3` <- http://vericath.org/wp-content/uploads/2026/07/5s-hoi_hop_cang_thang-www_tiengdong_com_cut_5sec.mp3
+     + `correct.mp3`  <- http://vericath.org/wp-content/uploads/2026/07/corect-1_cut_2sec.mp3
+     + `wrong.mp3`    <- http://vericath.org/wp-content/uploads/2026/07/tra-loi-sai.mp3
+     + `tick.mp3`     <- https://assets.mixkit.co/active_storage/sfx/544/544-preview.mp3
+   - Sử dụng audio local để đảm bảo chạy mượt mà, không lỗi HTTPS/Mixed Content. Khi bấm "BẮT ĐẦU CHƠI" phải tắt ngay nhạc intro.
+
+2. BẢO TỒN NGUYÊN VẸN TOÀN BỘ KHO CÂU HỎI & LOGIC TRƯỜNG QUAY:
+   - Giữ trọn vẹn 100% kho câu hỏi theo 3 độ khó (easy, medium, hard).
+   - **Thang tiền 15 câu:** ["200.000", "400.000", ..., "150.000.000"].
+   - **Xác nhận câu quan trọng:** Tại các câu 5, 10, 11, 12, 13, 14, 15, khi bấm chọn đáp án phải hiện popup: *"Câu này rất quan trọng. BẠN ĐÃ CHẮC CHẮN CHƯA?"*.
+   - **Hiệu ứng hồi hộp 3 giây:** Khóa nút, đổi màu vàng cam `answer-selected`, phát `suspense.mp3` trong 3 giây trước khi công bố đáp án đúng/sai.
+   - **4 Quyền trợ giúp:**
+     + `50:50`: Xóa 2 phương án sai.
+     + `GỌI`: Hiện modal gọi điện thoại cho người thân.
+     + `HỎI`: Hiện modal ý kiến khán giả.
+     + `ĐỔI`: Đổi sang câu hỏi khác cùng độ khó.
+     + Mỗi quyền chỉ được dùng 1 lần (tự khóa nút sau khi dùng).
+   - Đồng hồ 30 giây: Đếm ngược, 5 giây cuối kêu `tick.mp3`, hết giờ tính thua cuộc.
+
+3. KẾT NỐI BẢNG VÀNG FIREBASE REALTIME DATABASE:
+   - Sử dụng chung `firebaseConfig` của dự án.
+   - Ghi và đọc điểm top 10 tại nhánh RIÊNG BIỆT: `leaderboard` (lưu { name, diocese, parish, prize, score, timestamp }).
+   - TUYỆT ĐỐI KHÔNG ĐƯỢC CHẠM VÀO `leaderboard_vuihoc`, `leaderboard_verses` hay `rooms/`.
+
+4. THIẾT KẾ APPLE LIQUID GLASS & TRƯỜNG QUAY HIỆN ĐẠI:
+   - Font chữ toàn game: `Be Vietnam Pro` chuẩn xác.
+   - Tên game chính thức: "AI LÀ TRIỆU PHÚ" (xóa bỏ chữ V47).
+   - **Nút đáp án hình lục giác:** Giữ hình lục giác vát mép (`clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%)`), nền kính đục viền sáng khúc xạ, chữ to rõ.
+   - **Bố cục 2 Cột Desktop:**
+     + Cột Trái: Khung câu hỏi và lưới 4 đáp án trung tâm.
+     + Cột Phải: Thang tiền 15 bậc dạng kính Liquid Glass sang trọng, nổi bật mốc câu hiện tại.
+   - **Header chuẩn:** Nút `🏠 Sảnh Game` ở góc trái; cụm 4 nút trợ giúp hình viên thuốc ở giữa; đồng hồ 30s và nút `DỪNG` ở góc phải.
+   - Trên Mobile: Ẩn cột thang tiền để tối ưu tầm nhìn cho câu hỏi và đáp án; các nút đáp án co giãn vừa vặn, dễ bấm.
+
+5. BẢO TOÀN DÒNG TÁC QUYỀN & KIỂM TRA BUILD:
+   - Dòng tác quyền đặt ở Footer: "Tác giả: Giuse Phạm Duy Ái, SDS".
+   - Cập nhật route `/games/ai-la-trieu-phu` trong Router chính.
+   - Cập nhật `src/config/gamesList.ts`: Đổi trạng thái game sang `ready`.
+   - Đảm bảo `npm run build` thành công 100%.
+
+[Đính kèm toàn bộ mã nguồn HTML gốc của game Ai Là Triệu Phú]
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AI LÀ TRIỆU PHÚ CÔNG GIÁO - SDS V47</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        html, body { 
+            font-family: 'Be Vietnam Pro', sans-serif; 
+            background-color: #020617; margin: 0; padding: 0;
+            width: 100%; height: auto; min-height: 100%;
+            overflow-x: hidden; overflow-y: auto;
+        }
+
+        #game-wrapper {
+            position: relative;
+            width: 95%; max-width: 1000px; 
+            height: 720px;
+            margin: 20px auto;
+            background: #0f172a; border: 6px solid #334155; border-radius: 2rem;
+            display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 1024px) {
+            #game-wrapper { height: auto; min-height: 85vh; margin: 10px auto; border-width: 3px; border-radius: 1.5rem; }
+            #ladder-side { display: none; }
+            #ans-grid { grid-template-columns: 1fr !important; }
+            .answer-btn { padding: 0.6rem !important; font-size: 0.9rem !important; min-height: 3.5rem !important; }
+        }
+
+        .answer-btn { 
+            background: rgba(30, 41, 59, 0.8); border: 2px solid #334155; color: #f8fafc; 
+            font-weight: 700; transition: 0.2s; width: 100%;
+            clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
+        }
+        .answer-selected { background: #fbbf24 !important; border-color: #f59e0b !important; color: #000 !important; }
+        .answer-correct { background: #10b981 !important; border-color: #059669 !important; color: #fff !important; animation: pulse 0.4s infinite alternate; }
+        .answer-wrong { background: #ef4444 !important; border-color: #b91c1c !important; color: #fff !important; }
+        
+        .money-active { background: #eab308 !important; color: #0f172a !important; font-weight: 900; border-radius: 0.5rem; }
+        .sound-btn { width: 2.5rem; height: 2.5rem; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
+        .sound-btn.muted::after { content: "✕"; position: absolute; color: #ef4444; font-size: 1.8rem; font-weight: 900; }
+        @keyframes pulse { from { opacity: 1; } to { opacity: 0.7; } }
+    </style>
+</head>
+<body>
+
+<div id="game-wrapper">
+    <audio id="snd-intro" src="http://vericath.org/wp-content/uploads/2026/07/ai-la-trieu-phu-mo-dau.mp3" loop></audio>
+    <audio id="snd-suspense" src="http://vericath.org/wp-content/uploads/2026/07/5s-hoi_hop_cang_thang-www_tiengdong_com_cut_5sec.mp3"></audio>
+    <audio id="snd-correct" src="http://vericath.org/wp-content/uploads/2026/07/corect-1_cut_2sec.mp3"></audio>
+    <audio id="snd-wrong" src="http://vericath.org/wp-content/uploads/2026/07/tra-loi-sai.mp3"></audio>
+    <audio id="snd-tick" src="https://assets.mixkit.co/active_storage/sfx/544/544-preview.mp3"></audio>
+
+    <div id="screen-login" class="absolute inset-0 z-50 flex items-center justify-center p-4 bg-[#0f172a]" style="background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.95)), url('https://game.cgtd.vn/wp-content/uploads/sites/9/2026/01/ailatrieuphu.png'); background-size: cover;">
+        <div class="flex flex-col md:flex-row w-full max-w-5xl gap-6 items-center justify-center">
+            <div class="w-full max-w-md bg-white/10 backdrop-blur-xl p-8 rounded-[2rem] border border-white/20 shadow-2xl">
+                <h1 class="text-3xl font-black text-white mb-6 uppercase text-center tracking-widest">ĐĂNG KÝ GHẾ NÓNG</h1>
+                <div class="space-y-4">
+                    <input type="text" id="p-name" placeholder="👦 Họ và Tên *" class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white font-bold outline-none focus:border-yellow-400">
+                    <input type="text" id="p-diocese" placeholder="⛪ Giáo phận" class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white font-bold">
+                    <input type="text" id="p-parish" placeholder="🏠 Giáo xứ" class="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white font-bold">
+                    <button onclick="startGame()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-blue-950 font-black py-4 rounded-xl shadow-lg text-xl uppercase">BẮT ĐẦU CHƠI</button>
+                    <div class="text-center text-white/50 text-[10px] uppercase font-bold">Giuse Phạm Duy Ái, SDS</div>
+                </div>
+            </div>
+            <div class="hidden md:flex w-72 bg-black/40 backdrop-blur-md p-6 rounded-[2rem] border border-white/10 h-[480px] flex-col">
+                <h3 class="text-white font-black text-center mb-4 uppercase border-b border-white/10 pb-2">🏆 BẢNG VÀNG</h3>
+                <div id="side-bxh" class="flex-1 overflow-y-auto space-y-2 no-scrollbar text-white italic text-xs">Đang tải...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="hidden absolute inset-0 z-[60] bg-black/60 backdrop-blur-md flex items-center justify-center p-6">
+        <div class="bg-blue-950 border-4 border-yellow-500 p-8 rounded-[2.5rem] text-center shadow-[0_0_50px_rgba(234,179,8,0.3)] max-w-sm w-full transform transition-all scale-100">
+            <div class="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">❓</div>
+            <p class="text-white font-black text-xl mb-6 uppercase tracking-tight">Câu này rất quan trọng.<br><span class="text-yellow-400 text-2xl">BẠN ĐÃ CHẮC CHẮN CHƯA?</span></p>
+            <div class="flex gap-4">
+                <button onclick="confirmFinal(true)" class="flex-1 bg-yellow-500 hover:bg-yellow-400 text-blue-950 font-black py-4 rounded-2xl uppercase shadow-lg transition-transform active:scale-95">Chắc chắn</button>
+                <button onclick="confirmFinal(false)" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-black py-4 rounded-2xl uppercase transition-transform active:scale-95">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="lifeline-modal" class="hidden absolute inset-0 z-[70] bg-black/70 backdrop-blur-md flex items-center justify-center p-6">
+        <div class="bg-[#1e293b] border-2 border-blue-400 p-8 rounded-[2.5rem] text-center shadow-2xl max-w-sm w-full">
+            <div id="lifeline-icon" class="text-5xl mb-4">💡</div>
+            <h3 id="lifeline-title" class="text-blue-400 font-black uppercase text-xl mb-2 tracking-widest">TRỢ GIÚP</h3>
+            <div class="bg-black/40 p-6 rounded-2xl border border-white/10 mb-6">
+                <p id="lifeline-text" class="text-white font-bold italic text-lg leading-relaxed">...</p>
+            </div>
+            <button onclick="closeLifeline()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl uppercase tracking-widest transition-all">Đã rõ</button>
+        </div>
+    </div>
+
+    <div id="screen-game" class="hidden flex flex-col h-full w-full bg-[#0f172a]">
+        <header class="p-2 md:p-3 flex justify-between items-center border-b border-white/10 bg-[#1e293b] shrink-0">
+            <div class="flex items-center gap-1 md:gap-2">
+                <div id="global-sound-btn" onclick="toggleSound()" class="sound-btn text-lg">🔊</div>
+                <button onclick="lifeline('5050')" id="btn-5050" class="w-10 h-8 md:w-12 md:h-10 rounded-full bg-blue-900/50 text-blue-400 font-black text-[9px] border border-blue-400/30">50:50</button>
+                <button onclick="lifeline('call')" id="btn-call" class="w-10 h-8 md:w-12 md:h-10 rounded-full bg-blue-900/50 text-blue-400 font-black text-[9px] border border-blue-400/30">GỌI</button>
+                <button onclick="lifeline('audience')" id="btn-audience" class="w-10 h-8 md:w-12 md:h-10 rounded-full bg-blue-900/50 text-blue-400 font-black text-[9px] border border-blue-400/30">HỎI</button>
+                <button onclick="lifeline('swap')" id="btn-swap" class="w-10 h-8 md:w-12 md:h-10 rounded-full bg-blue-900/50 text-blue-400 font-black text-[9px] border border-blue-400/30">ĐỔI</button>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="bg-black/60 px-3 py-1 rounded-full border border-yellow-500/50 text-xl font-black text-yellow-400 font-mono italic" id="timer-text">30</div>
+                <button onclick="quitGame()" class="bg-red-600 text-white px-2 py-1 md:px-3 md:py-2 rounded-xl font-black text-[9px] md:text-[10px] uppercase">DỪNG</button>
+            </div>
+        </header>
+
+        <div class="flex-1 flex overflow-hidden">
+            <div class="flex-1 overflow-y-auto p-4 no-scrollbar">
+                <div class="w-full max-w-2xl mx-auto space-y-6 pb-10">
+                    <div class="bg-blue-900/40 border-2 border-blue-500/30 p-6 text-center rounded-[1.5rem] shadow-xl relative mt-4">
+                        <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-yellow-500 text-blue-950 px-4 py-1 rounded-full text-[10px] font-black uppercase">Câu <span id="num-q">1</span></div>
+                        <h2 id="txt-q" class="text-white text-lg md:text-2xl font-bold leading-snug">...</h2>
+                    </div>
+                    <div id="ans-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <button onclick="handleAnswer(0)" id="btn-0" class="answer-btn p-4 text-left flex items-center gap-4"><span class="text-yellow-500">A:</span> <span class="content">...</span></button>
+                        <button onclick="handleAnswer(1)" id="btn-1" class="answer-btn p-4 text-left flex items-center gap-4"><span class="text-yellow-500">B:</span> <span class="content">...</span></button>
+                        <button onclick="handleAnswer(2)" id="btn-2" class="answer-btn p-4 text-left flex items-center gap-4"><span class="text-yellow-500">C:</span> <span class="content">...</span></button>
+                        <button onclick="handleAnswer(3)" id="btn-3" class="answer-btn p-4 text-left flex items-center gap-4"><span class="text-yellow-500">D:</span> <span class="content">...</span></button>
+                    </div>
+                    <div id="next-area" class="hidden text-center"><button onclick="nextQ()" class="bg-emerald-500 text-white px-10 py-3 rounded-full font-black text-xl shadow-2xl">TIẾP THEO ➜</button></div>
+                </div>
+            </div>
+            <div id="ladder-side" class="w-64 bg-black/30 border-l border-white/5 p-4 flex flex-col justify-end shrink-0">
+                <div id="ladder" class="space-y-1"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-bxh" class="hidden absolute inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] w-full max-w-md rounded-[2rem] overflow-hidden border border-white/10 flex flex-col max-h-[90vh]">
+            <div class="bg-yellow-500 p-4 text-center font-black text-blue-950 uppercase text-lg">🏆 KẾT QUẢ</div>
+            <div id="modal-list" class="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar text-white italic text-xs">Đang tải...</div>
+            <button onclick="location.reload()" class="m-4 bg-yellow-500 text-blue-950 py-3 rounded-xl font-black uppercase text-lg">CHƠI VÁN MỚI</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyC6hPsvCo_j6bsDWsQZon_2dEWZrBaCvCk",
+        authDomain: "bxhtop-85816.firebaseapp.com",
+        databaseURL: "https://bxhtop-85816-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "bxhtop-85816",
+        appId: "1:393623323872:web:83a299817e2b4f0195bc85"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    window.saveGlobal = async (prizeStr) => {
+        const scoreVal = parseInt(prizeStr.replace(/[.,]/g, '')) || 0;
+        const name = document.getElementById('p-name').value;
+        if(!name) return;
+        try {
+            await push(ref(db, 'leaderboard'), {
+                name: name, diocese: document.getElementById('p-diocese').value,
+                parish: document.getElementById('p-parish').value,
+                prize: prizeStr, score: scoreVal, timestamp: Date.now()
+            });
+        } catch (e) { console.error(e); }
+    };
+
+    window.loadBXH = () => {
+        const topScoresQuery = query(ref(db, 'leaderboard'), orderByChild('score'), limitToLast(10));
+        onValue(topScoresQuery, (snapshot) => {
+            const data = snapshot.val();
+            let list = [];
+            for (let id in data) list.push(data[id]);
+            list.sort((a, b) => b.score - a.score);
+            const html = list.map((v, i) => `
+                <div class="flex items-center gap-2 p-2 bg-white/5 rounded-lg border border-white/5">
+                    <span class="font-black ${i < 3 ? 'text-yellow-500' : 'text-slate-400'}">${i + 1}</span>
+                    <div class="flex-1 truncate text-white"><b>${v.name}</b> <br><small class="text-slate-400 uppercase">${v.parish || '...'}</small></div>
+                    <div class="text-emerald-400 font-black text-xs">${v.prize}</div>
+                </div>`).join("");
+            document.getElementById('modal-list').innerHTML = html;
+            if(document.getElementById('side-bxh')) document.getElementById('side-bxh').innerHTML = html;
+        });
+    };
+    window.loadBXH();
+</script>
+
+<script>
+    let curIdx = 0, timerVal = 30, timerInt, isPaused = false, isMuted = false, correctIdx = 0, pendingIdx = -1;
+    let usedQuestions = { easy: [], medium: [], hard: [] };
+
+    // KHO CÂU HỎI ĐẦY ĐỦ
+    const questions = {
+        easy: [
+            { q: "Điều răn nào quan trọng thứ hai sau yêu mến Thiên Chúa?", a: ["Yêu người như chính mình", "Không nói dối", "Kính trọng cha mẹ", "Thờ phượng thần tượng"], c: 0 },
+            { q: "Ân sủng là gì?", a: ["Sự trợ giúp của Thiên Chúa để sống thánh thiện", "Thưởng phạt đời sau", "Những luật lệ bắt buộc", "Phần thưởng vật chất"], c: 0 },
+            { q: "Thế nào là tội trọng?", a: ["Tội vi phạm nghiêm trọng luật Chúa với đầy đủ ý thức và tự do", "Tội nhẹ có thể tha ngay", "Những lỗi hành chính", "Tội vô ý"], c: 0 },
+            { q: "Ai là tác giả Tin Mừng Gioan?", a: ["Tông đồ Gioan, môn đệ Chúa yêu", "Thánh Phao-lô", "Thánh Lu-ca y sĩ", "Thánh Gia-cô-bê hậu"], c: 0 },
+            { q: "Chúa Giêsu đã sống lại từ cõi chết vào ngày nào?", a: ["Ngày Chúa Nhật", "Ngày thứ bảy (Sabát)", "Ngày thứ sáu tuần thánh", "Ngày cuối cùng của tháng"], c: 0 },
+            { q: "Đến bữa ăn ta phải làm gì để tỏ lòng hiếu kính?", a: ["Mời người lớn ăn, không ăn trước khi người lớn chưa ăn", "Ngồi vào chỗ mình thích", "Chỉ mời cha mẹ", "Lấy thức ăn cho mình trước"], c: 0 },
+            { q: "Trước khi bắt đầu bữa ăn, người Kitô hữu phải làm gì?", a: ["Làm dấu thánh giá, đọc kinh cám ơn Chúa", "Kiểm tra món ngon", "Bàn tán chuyện", "Uống nước cho no"], c: 0 },
+            { q: "Trong bữa ăn, điều gì sau đây được coi là lịch sự?", a: ["Không cáo tội nhau, không chê món ăn, không chọn miếng ngon nhất", "Nói chuyện thật to", "Kể tội người khác", "Gắp miếng ngon cho mình"], c: 0 },
+            { q: "Khi khách đến nhà, chúng ta nên ứng xử thế nào?", a: ["Chào khách, mặc lịch sự, mời nước", "Cứ ngồi tự nhiên", "Hỏi quà", "Không cần tiếp đón"], c: 0 },
+            { q: "Khi đến nhà người khác, hành vi nào là đúng?", a: ["Ấn chuông hoặc gõ cửa, đợi chủ nhà mời mới vào", "Mở cửa vào luôn", "Gọi thật to tên chủ", "Nhìn qua cửa sổ"], c: 0 },
+            { q: "Khi vào nhà thờ, cử chỉ nào thể hiện sự tôn kính?", a: ["Bái Chúa cung kính, đi đứng nghiêm trang", "Chạy thật nhanh", "Nói chuyện nhỏ tiếng", "Bắt tay chào hỏi"], c: 0 },
+            { q: "Nhân danh ai chúng ta đọc kinh xin ơn trong Thánh lễ?", a: ["Cha, Con và Thánh Thần", "Chúa Giêsu", "Maria", "Các thánh"], c: 0 },
+            { q: "Sau 'Phụng vụ Lời Chúa' là gì?", a: ["Phụng vụ Thánh Thể", "Phụng vụ Hiến Tế", "Phụng vụ Rước lễ", "Phụng vụ Thánh lễ"], c: 0 },
+            { q: "Trong Thánh lễ, Thánh Thần được gọi là gì?", a: ["Đấng Thánh", "Thiên thần", "Môn đệ", "Linh mục"], c: 0 },
+            { q: "Trong Thánh lễ, khi nào tín hữu đọc Kinh Tin Kính?", a: ["Sau bài giảng", "Trước Tin Mừng", "Sau Phụng vụ Thánh Thể", "Trong khi hiệp lễ"], c: 0 },
+            { q: "Thánh lễ gồm mấy phần chính?", a: ["Hai phần", "Ba", "Một", "Bốn"], c: 0 },
+            { q: "Linh mục rửa tay trước khi cử hành Bí tích nhằm mục đích gì?", a: ["Thanh tẩy tâm hồn", "Vệ sinh cá nhân", "Kính trọng giáo dân", "Truyền thống"], c: 0 },
+            { q: "Bí tích Thánh Thể do Chúa Giêsu thiết lập trong bữa ăn nào?", a: ["Bữa Tiệc Ly", "Bữa sáng Nazareth", "Bữa tối môn đệ", "Lễ Vượt Qua"], c: 0 },
+            { q: "Khi nào trong Thánh lễ tín hữu cử hành Rước Lễ?", a: ["Sau Phụng vụ Thánh Thể", "Sau Phụng vụ Lời Chúa", "Trước Thánh Thể", "Chuẩn bị"], c: 0 },
+            { q: "Trong Thánh lễ, lời 'Chính nhờ Người, với Người và trong Người' nói về ai?", a: ["Chúa Kitô", "Chúa Cha", "Chúa Thánh Thần", "Maria"], c: 0 },
+            { q: "Trong Thánh lễ, tín hữu làm dấu thánh giá mấy lần?", a: ["Ba lần", "Một lần", "Hai lần", "Bốn lần"], c: 0 },
+            { q: "Từ 'Amen' nghĩa là gì?", a: ["Tôi tin như vậy", "Cầu nguyện xong", "Xin lỗi Chúa", "Hòa bình"], c: 0 },
+            { q: "Thánh lễ kết thúc bằng phần nào?", a: ["Lời nguyện kết lễ và sai đi", "Bài giảng", "Rước lễ", "Kinh Tin Kính"], c: 0 },
+            
+            { q: "Phụng vụ Lời Chúa gồm những phần nào?", a: ["Bài đọc, Tin Mừng, Bài giảng, Kinh Tin Kính", "Chỉ Tin Mừng", "Chỉ Kinh Tin Kính", "Chỉ bài đọc"], c: 0 },
+            { q: "Thánh lễ nào được cử hành thường xuyên nhất?", a: ["Thánh lễ Chúa Nhật", "Thánh lễ lễ trọng", "Thánh lễ riêng lẻ", "Thánh lễ Tết"], c: 0 },
+            { q: "Trong Thánh lễ, chuỗi bài đọc nào thuộc Cựu Ước?", a: ["Bài đọc 1", "Tin Mừng", "Bài đọc 2", "Kinh Tin Kính"], c: 0 },
+            { q: "Khi nào linh mục nâng cao Mình Thánh Chúa?", a: ["Sau truyền phép", "Trước bài đọc", "Khi bắt đầu", "Sau hiệp lễ"], c: 0 },
+            { q: "Thánh lễ được tổ chức ở đâu?", a: ["Nhà thờ", "Trường học", "Nhà riêng", "Ngoài trời"], c: 0 },
+            { q: "Trong Thánh lễ, ai làm phép bánh và rượu?", a: ["Linh mục", "Tín hữu", "Thiếu nhi", "Giáo dân"], c: 0 },
+            { q: "Trong Thánh lễ, bài giảng thuộc phần nào?", a: ["Phụng vụ Lời Chúa", "Phụng vụ Thánh Thể", "Hiệp lễ", "Kinh Tạ Ơn"], c: 0 },
+            { q: "Thánh lễ Chúa Nhật khác gì so với ngày thường?", a: ["Bắt buộc tham dự và đọc kinh đặc biệt", "Thời gian ngắn", "Ít kinh hơn", "Không hiệp lễ"], c: 0 },
+            { q: "Phụng vụ Thánh Thể gồm những phần nào?", a: ["Chuẩn bị lễ vật, truyền phép, Rước lễ, Kinh Tạ Ơn", "Bài giảng", "Bài đọc", "Kinh nguyện"], c: 0 },
+            { q: "Khi đọc kinh 'Lạy Cha', ta nói điều gì?", a: ["Kính mến Thiên Chúa và xin ơn", "Kể lịch sử", "Hát", "Tường thuật"], c: 0 },
+            { q: "Ai là Mẹ của Chúa Giêsu?", a: ["Maria", "Anna", "Isabel", "Martha"], c: 0 },
+            { q: "Chúa Giêsu sinh ra ở đâu?", a: ["Belem", "Nazareth", "Jerusalem", "Galilee"], c: 0 },
+            { q: "Trong năm Phụng vụ, màu sắc nào tượng trưng cho mùa Vui?", a: ["Màu Trắng", "Màu Tím", "Màu Đỏ", "Màu Xanh Lá"], c: 0 },
+            { q: "Bí tích nào là 'cửa ngõ' gia nhập Giáo hội?", a: ["Bí tích Rửa Tội", "Bí tích Thêm Sức", "Bí tích Hôn Phối", "Bí tích Truyền Chức"], c: 0 },
+            { q: "Khi nhận quà hoặc giúp đỡ, từ đầu tiên nên nói là gì?", a: ["Cảm ơn", "Bao nhiêu tiền?", "Lần sau cho thêm", "Im lặng"], c: 0 },
+            { q: "Ai đã làm phép rửa cho Chúa Giêsu?", a: ["Gioan Tẩy Giả", "Phêrô", "Phaolô", "Giacôbê"], c: 0 },
+            { q: "Chúa Giêsu có bao nhiêu Tông đồ?", a: ["12", "10", "7", "15"], c: 0 },
+            { q: "Ai phản bội Chúa Giêsu?", a: ["Giuđa Iscariốt", "Phêrô", "Gioan", "Mátthêu"], c: 0 },
+            { q: "Kinh Lạy Cha do ai dạy?", a: ["Chúa Giêsu", "Mô-sê", "Gioan Tẩy Giả", "Phêrô"], c: 0 },
+            { q: "Chúa Giêsu chết trên cây gì?", a: ["Thập giá", "Cây ôliu", "Cây dương", "Cây vả"], c: 0 },
+            { q: "Chúa Giêsu sống lại vào ngày thứ mấy?", a: ["Ngày thứ 3", "Ngày thứ nhất", "Thứ 7", "Thứ 40"], c: 0 },
+            { q: "Ai được xem là Tông đồ được Chúa yêu nhất?", a: ["Gioan", "Giacôbê", "Phêrô", "Mátthêu"], c: 0 },
+            { q: "Chúa Giêsu lớn lên ở đâu?", a: ["Nazareth", "Jerusalem", "Belem", "Jericho"], c: 0 },
+            { q: "Chúa Giêsu làm nghề gì khi còn nhỏ?", a: ["Thợ mộc", "Ngư phủ", "Nông dân", "Thầy dạy"], c: 0 },
+            { q: "Chúa Giêsu yêu thương trẻ em hay không?", a: ["Có", "Không", "Đôi lúc", "Chỉ người lớn"], c: 0 },
+            { q: "Tha thứ là điều Chúa Giêsu có dạy không?", a: ["Có", "Không", "Chỉ bạn bè", "Chỉ gia đình"], c: 0 },
+            { q: "Mười Điều Răn do ai ban?", a: ["Thiên Chúa", "Thánh Phêrô", "Chúa Giêsu", "Phaolô"], c: 0 },
+            { q: "Kinh Thánh gồm mấy phần chính?", a: ["2", "1", "3", "4"], c: 0 },
+            { q: "Phần nói về Chúa Giêsu gọi là gì?", a: ["Tân Ước", "Cựu Ước", "Sáng Thế", "Thánh Vịnh"], c: 0 },
+            { q: "Ba Ngôi gồm những ai?", a: ["Cha, Con và Thánh Thần", "Cha, Con và Maria", "Chúa Giêsu, Phêrô", "Chúa Giêsu, Maria"], c: 0 },
+            { q: "Ai là người đầu tiên nhìn thấy Chúa sống lại?", a: ["Maria Magdalen", "Phêrô", "Gioan", "Giacôbê"], c: 0 },
+            { q: "Chúa Giêsu làm phép lạ biến nước thành rượu ở đâu?", a: ["Cana", "Belem", "Jerusalem", "Nazareth"], c: 0 },
+            { q: "Vào nhà thờ, thấy bạn ngủ gật, ta nên làm gì?", a: ["Nhắc nhẹ bạn dậy", "Quay Tiktok", "Hát thật to", "Kê gối"], c: 0 },
+            { q: "Miếng đùi gà ngon nhất, người lịch sự sẽ làm gì?", a: ["Gắp mời người lớn nhất", "Gắp bỏ túi", "Dùng tay bốc", "Liếm đánh dấu"], c: 0 },
+            { q: "Lỡ tay làm vỡ bình hoa của mẹ, nói gì?", a: ["Con xin lỗi mẹ!", "Tại con mèo", "Bình cũ rồi", "Làm thí nghiệm"], c: 0 },
+            { q: "Tiếng chuông nhà thờ trước Thánh lễ ý nghĩa gì?", a: ["Chúa mời gọi con cái", "Ngưng việc đi lễ", "Không ăn uống", "Báo có lễ"], c: 0 },
+            { q: "Trong kinh thú tội, 'lỗi tại tôi...' đấm ngực mấy lần?", a: ["3 lần", "1 lần", "2 lần", "Không cần"], c: 0 },
+            { q: "Trong Thánh lễ, ai đọc Kinh thú tội?", a: ["Toàn cộng đoàn", "Người tội nhẹ", "Người tội nặng", "Đàn ông"], c: 0 },
+            { q: "Tại sao cộng đoàn đứng lên khi nghe Tin Mừng?", a: ["Chính Chúa Kitô nói", "Linh mục bảo", "Nghi thức", "Khỏi buồn ngủ"], c: 0 },
+            { q: "Trong Lời nguyện tín hữu, cầu nguyện cho ai?", a: ["Tất cả mọi người", "Chỉ người Công giáo", "Chỉ linh hồn", "Chỉ giáo xứ"], c: 0 },
+            { q: "Chủ tế giơ cao Mình Máu để làm gì?", a: ["Mọi người thấy và thờ lạy", "Xem cho rõ", "Biến thành Mình Máu"], c: 0 },
+            { q: "Ai đọc 'Thầy ban bình an của Thầy cho các con'?", a: ["Vị chủ tế", "Chúa Giêsu", "Cha đồng tế"], c: 0 },
+            { q: "Nghi thức chúc bình an là gì?", a: ["Dấu chỉ hiệp thông", "Chúc sức khỏe", "Chúc xã giao"], c: 0 },
+            { q: "Giáo dân có được tự đến lấy bánh thánh không?", a: ["Không, đón nhận từ thừa tác viên", "Được", "Tùy ý", "Dành cho người sạch tay"], c: 0 },
+            { q: "Thừa tác viên nói 'Mình Thánh Chúa Kitô', thưa gì?", a: ["Amen", "Cảm ơn", "Tạ ơn Chúa", "Mời Chúa vào lòng"], c: 0 },
+            { q: "Người Công Giáo có được rước lễ nhà thờ Tin Lành?", a: ["Không", "Có", "Tùy", "Nếu thích"], c: 0 },
+            { q: "Dự lễ qua tivi có thay thế Thánh lễ nhà thờ?", a: ["Bệnh nhân thì được; khỏe thì không", "Được", "Không bao giờ", "Chơi thân với cha"], c: 0 },
+            { q: "Thánh lễ có ý nghĩa gì đối với Kitô hữu?", a: ["Nguồn mạch và chóp đỉnh", "Nghi thức", "Bổn phận", "Khỏi vào hỏa ngục"], c: 0 }
+        ],
+        medium: [
+            { q: "Tân Ước gồm bao nhiêu cuốn và viết tiếng gì?", a: ["27 cuốn, tiếng Hy Lạp phổ thông", "46 cuốn, tiếng Do Thái", "12 cuốn, Latinh"], c: 0 },
+            { q: "Sách Công Vụ Tông Đồ kể lại điều gì?", a: ["Giáo Hội sơ khai và loan báo Tin Mừng", "Cuộc đời Chúa", "Tận thế"], c: 0 },
+            { q: "Hát bao nhiêu lần 'Lạy Chiên Thiên Chúa...'?", a: ["Cho đến khi bẻ bánh xong", "2 lần", "3 lần"], c: 0 },
+            { q: "Quyên tiền trong Thánh lễ có cần thiết không?", a: ["Có, dấu chỉ tham dự", "Không", "Hành chính", "Tùy nhà thờ"], c: 0 },
+            { q: "Tại sao ngôn ngữ phụng vụ đôi khi khó hiểu?", a: ["Tính linh thiêng và truyền thống", "Quá tiến bộ", "Không ý nghĩa"], c: 0 },
+            { q: "Thánh lễ bắt nguồn từ đâu?", a: ["Bữa Tiệc Ly", "Bữa tiệc vượt qua", "Giáo Hội sơ khai", "Hiện nay"], c: 0 },
+            { q: "Lễ Vượt Qua người Do-thái nhắc sự kiện gì?", a: ["Thoát khỏi Ai Cập", "Sinh nhật Moses", "Xây đền", "Sa mạc"], c: 0 },
+            { q: "Khi nào linh mục chúc bình an?", a: ["Trước hiệp lễ", "Sau bài giảng", "Sau Phụng vụ Thánh Thể", "Trước Tin Mừng"], c: 0 },
+            { q: "Chữ 'Gloria' nghĩa là gì?", a: ["Vinh danh Chúa", "Cầu nguyện", "Tha tội", "Hiệp lễ"], c: 0 },
+            { q: "Trong Thánh lễ, Kinh Tiền Tụng đọc khi nào?", a: ["Mở đầu Phụng vụ Thánh Thể", "Sau hiệp lễ", "Trước bài giảng", "Phụng vụ Lời Chúa"], c: 0 },
+            { q: "Qua Kinh Thánh, vũ trụ mang dấu vết của ai?", a: ["Thiên Chúa", "Thần linh", "Ngẫu nhiên", "Con người"], c: 0 },
+            { q: "Thiên Chúa dùng các Ngôn sứ để chuẩn bị điều gì?", a: ["Ngôi Lời xuất hiện", "Xây Đền thờ", "Chiến tranh", "Bộ luật mới"], c: 0 },
+            { q: "Biến cố xuất hành khỏi Ai-cập hướng đến việc gì?", a: ["Giải phóng khỏi nô lệ tội lỗi", "Vàng bạc", "Đế chế", "Giao thương"], c: 0 },
+            { q: "Các Thư trong Tân Ước được soạn thảo do đâu?", a: ["Ơn Linh Hứng Chúa Thánh Thần", "Tự ý ghi", "Sử gia", "Hoàng đế"], c: 0 },
+            { q: "Với giáo hội sơ khai, các Thư phản ánh điều gì?", a: ["Việc sống Lời Chúa", "Tranh chấp", "Kỹ thuật in", "Quy tắc xây"], c: 0 },
+            { q: "Vùng đất Palestin thời Chúa Giêsu có mấy phần?", a: ["Galilê, Samari và Giu-đê", "Bắc và Nam", "4 phần", "Ai Cập, Ba Tư"], c: 0 },
+            { q: "Khi Chúa Giêsu chào đời, ai trị vì Roma?", a: ["Hoàng đế Au-gut-tô", "Hê-rô-đê", "Nê-rô", "Ti-bê-ri-ô"], c: 0 },
+            { q: "Giai cấp Do thái thời Chúa Giêsu gồm?", a: ["Tư tế, Kinh sư, Kỳ mục, Dân chúng", "Hoàng gia", "Quân đội", "Địa chủ"], c: 0 },
+            { q: "Kinh Sư trong xã hội Do Thái cổ là ai?", a: ["Chuyên về Kinh Thánh và Luật", "Việc tế tự", "Thu thuế", "Cai trị"], c: 0 },
+            { q: "Giới Kỳ Mục thời bấy giờ là những ai?", a: ["Bậc niên trưởng, phú ông", "Người trẻ", "Người nghèo", "Ngoại đạo"], c: 0 },
+            { q: "Đền thờ đóng vai trò gì?", a: ["Trung tâm đời sống Tôn giáo", "Di tích", "Chính trị", "Thể thao"], c: 0 },
+            { q: "Ba dịp lễ lớn hàng năm của Do Thái là?", a: ["Vượt Qua, Ngũ Tuần và Lễ Lều", "Giáng Sinh, Phục Sinh", "Năm Mới", "Giải Phóng"], c: 0 },
+            { q: "Dịp lễ chính nhắc người Do Thái nhớ điều gì?", a: ["Thiên Chúa giải phóng dân Người", "Đóng thuế", "Sự giàu có", "Mùa màng"], c: 0 },
+            { q: "Tin Mừng Mac-cô soạn thảo năm nào?", a: ["Trước năm 70, tại Roma", "Năm 100", "Năm 30", "Trước năm 50"], c: 0 },
+            { q: "Tin Mừng Luca được soạn ở đâu?", a: ["Tại Rôma, sau năm 70", "Nadarét", "Hi Lạp", "Ấn Độ"], c: 0 },
+            { q: "Chủ đề trung tâm Mat-thêu là gì?", a: ["Nước Trời", "Sự thật", "Nghèo khó", "Phép lạ"], c: 0 },
+            { q: "Mục đích chính của Mat-thêu là gì?", a: ["Trình bày con người Đức Giêsu", "Phê phán", "Hướng dẫn giáo phận", "Lịch sử dân tộc"], c: 0 },
+            { q: "Đạo lý chính yếu của Mat-thêu là?", a: ["Đức Giêsu là Đấng Mê-si-a", "Nhà triết học", "Giải phóng chính trị", "Ngôn sứ"], c: 0 },
+            { q: "Thánh Mac-cô dùng lối văn nào?", a: ["Kể chuyện sinh động", "Thơ ca", "Nghị luận", "Pháp lý"], c: 0 },
+            { q: "Vị thánh bảo trợ các nhà thần học?", a: ["Thánh Thomas Aquinas", "Thánh Augustinô", "Thánh Inhaxiô", "Thánh Phêrô"], c: 0 },
+            { q: "Chu kỳ bài đọc Chúa nhật gọi là gì?", a: ["Năm A, B, C", "Năm 1, 2, 3", "Năm Ba Ngôi"], c: 0 },
+            { q: "Chu kỳ bài đọc ngày trong tuần?", a: ["Năm 1, năm 2", "Chẵn lẻ", "An-pha"], c: 0 },
+            { q: "Lễ Chúa nhật, bài đọc I lấy từ đâu?", a: ["Cựu Ước (trừ mùa Phục Sinh)", "Luôn Cựu Ước", "Tân Ước"], c: 0 },
+            { q: "Bài Thánh vịnh đáp ca có vai trò gì?", a: ["Lời đáp của cộng đoàn", "Theo ý Tin Mừng", "Gạch nối"], c: 0 },
+            { q: "Câu 'Kyrie eleison' tiếng gì?", a: ["Tiếng Hy-lạp", "La-tinh", "Do-thái", "Nhật"], c: 0 },
+            { q: "Nghĩa đúng nhất của từ 'Amen'?", a: ["Sự chắc chắn và trung tín", "Ước gì được như vậy", "Kết thúc", "Chấp nhận"], c: 0 },
+            { q: "Nghĩa chính xác của 'Halêluia'?", a: ["Hãy ngợi khen Chúa", "Trang nghiêm", "Phục sinh", "Mừng vui"], c: 0 },
+            { q: "Từ ý nghĩa nhất để nói về Thánh lễ?", a: ["Hy lễ tạ ơn", "Hy lễ", "Thánh lễ", "Mix-xa"], c: 0 },
+            { q: "Lễ bẻ bánh sơ khai có Tin Mừng không?", a: ["Không, vì chưa soạn xong", "Dĩ nhiên có", "Tùy lúc", "Không biết"], c: 0 },
+            { q: "Câu CHỈ linh mục chủ tế được đọc?", a: ["Lạy Chúa Giêsu Kitô, Chúa đã nói...", "Vinh danh", "Lạy Cha", "Thần trí cha"], c: 0 },
+            { q: "Bí tích nền tảng cho các Bí tích khác?", a: ["Rửa tội", "Thánh Thể", "Xức dầu", "Hôn phối"], c: 0 },
+            { q: "Bí tích Xức dầu bệnh nhân giúp gì?", a: ["Tha tội và nâng đỡ sức khỏe", "Phép lành gia đình", "Phúc lành sau này", "Chứng nhận"], c: 0 },
+            { q: "Bí tích Hôn phối có mấy đặc tính?", a: ["Đơn nhất và bất khả phân ly", "Một", "Ba", "Bốn"], c: 0 },
+            { q: "Thánh Thể là gì?", a: ["Mình và Máu Chúa thật hiện diện", "Biểu tượng", "Bữa ăn tượng trưng", "Lời nguyện"], c: 0 },
+            { q: "Giáo Hội được lập ra mục đích gì?", a: ["Đem ơn cứu độ cho mọi người", "Bảo vệ tín hữu", "Lưu sách", "Xây giáo đường"], c: 0 },
+            { q: "Chức Linh mục được trao quyền gì?", a: ["Cử hành Bí tích và rao giảng", "Quản lý tài sản", "Dạy giáo lý", "Lễ hội"], c: 0 }
+        ],
+        hard: [
+            { q: "Ai là vị thánh bảo trợ nhà thần học?", a: ["Thánh Thomas Aquinas", "Thánh Augustinô", "Inhaxiô", "Phêrô"], c: 0 },
+            { q: "Ai lập Dòng Tên (Jesuits)?", a: ["Thánh Inhaxiô Loyola", "Phanxicô", "Thomas", "Gioan"], c: 0 },
+            { q: "Giáo Hoàng lập Công Đồng Vatican II?", a: ["Gioan XXIII", "Piô XII", "Phaolô VI", "Benedict XVI"], c: 0 },
+            { q: "Ai chủ trì soạn Giáo Lý 1992?", a: ["Ủy Ban Giáo Lý", "Thomas", "Giêrômê", "Augustinô"], c: 0 },
+            { q: "Ai viết sách Khôn Ngoan?", a: ["Vua Solomon", "Mô-sê", "Phaolô", "Gioan"], c: 0 },
+            { q: "Tiên tri đã bị cá nuốt?", a: ["Giôna", "Êlia", "Isaia", "Giêrêmia"], c: 0 },
+            { q: "Ai dẫn dân Israel vượt Biển Đỏ?", a: ["Mô-sê", "Joshua", "Áp-ra-ham", "Đavít"], c: 0 },
+            { q: "Thánh giữ Đền Thờ khi còn trẻ?", a: ["Samuen", "Gioan", "Phêrô", "Phaolô"], c: 0 },
+            { q: "Tác giả sách Khải Huyền?", a: ["Thánh Gioan", "Phaolô", "Phêrô", "Mátthêu"], c: 0 },
+            { q: "Thánh gặp Chúa trên đường Damascus?", a: ["Thánh Phaolô", "Phêrô", "Gioan", "Mátthêu"], c: 0 },
+            { q: "Ai viết thư gửi tín hữu Galatia?", a: ["Phaolô", "Phêrô", "Gioan", "Mátthêu"], c: 0 },
+            { q: "Ai lập Giáo Hội tại Rome?", a: ["Phêrô", "Phaolô", "Gioan", "Mátthêu"], c: 0 },
+            { q: "Quan thầy các nhà truyền giáo?", a: ["Thánh Phanxicô Xaviê", "Phêrô", "Gioan", "Mátthêu"], c: 0 },
+            { q: "Ai dâng lễ sinh trong Đền Thờ?", a: ["Simeon", "Anna", "Maria", "Phêrô"], c: 0 },
+            { q: "Tiên tri báo về Người Tôi Trung đau khổ?", a: ["Isaia", "Giêrêmia", "Êlia", "Ezekiel"], c: 0 },
+            { q: "Dẫn Chúa vào Jerusalem trên lưng lừa?", a: ["Các môn đệ", "Dân chúng", "Phêrô", "Maria"], c: 0 },
+            { q: "Vua Israel xây đền thờ đầu tiên?", a: ["Solomon", "Đavít", "Saul", "Mô-sê"], c: 0 },
+            { q: "Tiên tri gọi vua Achab ăn năn?", a: ["Elia", "Isaia", "Jeremiah", "Ezekiel"], c: 0 },
+            { q: "Người giải giấc mơ tại Ai Cập?", a: ["Giuse", "Mô-sê", "Daniel", "David"], c: 0 },
+            { q: "Dâng con trai Isaac thử lòng tin?", a: ["Áp-ra-ham", "Mô-sê", "David", "Noah"], c: 0 },
+            { q: "Ai cứu Daniel khỏi hang sư tử?", a: ["Thiên Chúa", "Đavít", "Mô-sê", "Gioan"], c: 0 },
+            { q: "Sáng lập Dòng Phanxicô (OFM)?", a: ["Thánh Phanxicô Assisi", "Gioan Phaolô", "Têrêsa", "Augustinô"], c: 0 },
+            { q: "Biên soạn Kinh Thánh Latinh (Vulgata)?", a: ["Thánh Giêrômê", "Augustinô", "Thomas", "Phêrô"], c: 0 },
+            { q: "Nữ Tiến sĩ Hội Thánh đầu tiên?", a: ["Thánh Thê-rê-sa Avila", "Catarina", "Hài Đồng Giêsu", "Hildegard"], c: 0 },
+            { q: "Lập Dòng Nữ Tử Bác Ái?", a: ["Thánh Vinh Sơn và Louise", "Têrêsa Calcutta", "Phanxicô", "Augustinô"], c: 0 },
+            { q: "Vị thánh bảo trợ trẻ em?", a: ["Thánh Têrêsa Hài Đồng", "Phêrô", "Phaolô", "Gioan"], c: 0 },
+            { q: "Giảng đài có được rao hôn phối?", a: ["Không (Chỉ dành cho Lời Chúa)", "Được"], c: 0 },
+            { q: "Lễ có Giám mục, ai công bố Tin Mừng?", a: ["Linh mục", "Giám mục"], c: 0 },
+            { q: "Tin Mừng KHÔNG đọc ngày thường?", a: ["Tin Mừng thánh Gio-an (Trừ mùa đặc biệt)", "Mát-thêu", "Mác-cô", "Lu-ca"], c: 0 },
+            { q: "Ai thánh hiến bánh rượu?", a: ["Chúa Kitô (qua linh mục)", "Linh mục", "Chúa Cha", "Ba Ngôi"], c: 0 },
+            { q: "Ai được hát Vinh tụng ca 'Chính nhờ Người...'?", a: ["Linh mục chủ tế/đồng tế", "Phó tế", "Giúp lễ", "Giáo dân"], c: 0 },
+            { q: "Kinh Lạy Cha thường bị đọc sai từ?", a: ["cho - Chúa - xa", "1 từ", "2 từ", "4 từ"], c: 0 },
+            { q: "Sau Kinh Lạy Cha, 'bình an' xuất hiện mấy lần?", a: ["3 lần", "8 lần", "5 lần", "7 lần"], c: 0 },
+            { q: "Điền từ: 'Xin đoái thương ban cho [...] được bình an'?", a: ["Hội Thánh", "Giáo Hội", "Chúng con", "Thế giới"], c: 0 },
+            { q: "Nghi thức bẻ bánh ý nghĩa gì?", a: ["Dấu chỉ hiệp nhất một tấm bánh", "Bánh to quá", "Chủ tế không ăn hết", "Cho đủ người"], c: 0 },
+            { q: "Tại sao bỏ miếng bánh nhỏ vào chén thánh?", a: ["Kết hợp Mình - Máu (Chúa hằng sống)", "Bẻ đẹp", "Dễ nuốt", "Thơm rượu"], c: 0 },
+            { q: "Bắt đầu Kinh Chiên Thiên Chúa lúc nào?", a: ["Khi linh mục bẻ bánh", "Sau chúc bình an", "Sau nghi thức bẻ bánh"], c: 0 },
+            { q: "Câu 'Chúa đã cho chúng con dự tiệc...' ở đâu?", a: ["Lời nguyện hiệp lễ", "Nhập lễ", "Tiến lễ"], c: 0 },
+            { q: "Hy tế Thánh Thể nguồn mạch của?", a: ["Đời sống Kitô hữu", "Tôn giáo", "Truyền giáo", "Hôn nhân"], c: 0 },
+            { q: "2 Chúa nhật Linh mục mặc áo màu hồng?", a: ["CN 3 Mùa Vọng và CN 4 Mùa Chay", "CN 4 Vọng", "CN 2 Vọng", "Lễ hôn phối"], c: 0 },
+            { q: "VN, lễ các Thánh nào là lễ Trọng?", a: ["Các Thánh Tử Đạo VN", "Thánh Têrêsa", "Thánh Mônica"], c: 0 },
+            { q: "Kinh Vinh Danh ca tụng ai là chính?", a: ["Chúa Ba Ngôi", "Chúa Cha", "Chúa Con", "Thánh Thần"], c: 0 },
+            { q: "Tại sao chủ tế đọc 'chúng con'?", a: ["Đại diện toàn thể cộng đoàn", "Sợ buồn", "Gồm giúp lễ"], c: 0 },
+            { q: "Chủ tế dâng lời nguyện lên ai?", a: ["Chúa Cha", "Chúa Kitô", "Thánh Thần", "Ba Ngôi"], c: 0 },
+            { q: "Sau bài đọc I hát gì chính xác nhất?", a: ["Thánh vịnh đáp ca", "Thánh vịnh", "Thánh ca", "1 bài hát"], c: 0 },
+            { q: "Trong Thánh lễ, ý nguyện nào sau đây sai?", a: ["Không có (miễn là lời cầu xin)", "Cầu cho Giáo Hội", "Cầu nhà cầm quyền", "Cầu người chống phá"], c: 0 },
+            { q: "Vật nào KHÔNG gọi là 'lễ phẩm'?", a: ["Hoa và Nến", "Bánh rượu", "Tiền quyên", "Phẩm vật nghèo"], c: 0 },
+            { q: "Quyên tiền lúc nào lý tưởng nhất?", a: ["Khi mang lễ phẩm lên", "Kinh Tin Kính", "Lời nguyện tín hữu", "Sau rước lễ"], c: 0 },
+            { q: "Nâng đĩa thánh thưa với ai?", a: ["Chúa Cha", "Chúa Kitô", "Thánh Thần", "Ba Ngôi"], c: 0 },
+            { q: "Tại sao đổ nước vào rượu lễ?", a: ["Hiệp nhất thần tính - nhân tính", "Rượu gắt", "Cho loãng", "Thói quen"], c: 0 },
+            { q: "Xông hương trong lễ ý nghĩa gì?", a: ["Tôn kính Chúa, lời nguyện bay lên", "Cho thơm", "Linh thiêng", "Sở thích"], c: 0 },
+            { q: "Tại sao chủ tế rửa tay?", a: ["Thanh tẩy tâm hồn", "Bắt tay nhiều", "Sắp cầm Mình Thánh", "Vệ sinh"], c: 0 },
+            { q: "Kinh nguyện Thánh Thể là kinh gì?", a: ["Quan trọng nhất Thánh lễ", "Trước chầu", "Để truyền phép"], c: 0 },
+            { q: "Bao nhiêu Kinh nguyện Thánh Thể chính thức?", a: ["13 Kinh nguyện", "4", "8", "10"], c: 0 },
+            { q: "Kinh Tiền Tụng là lời ca tụng được đọc khi nào?", a: ["Đầu Kinh Nguyện Thánh Thể, trước kinh Thánh Thánh Thánh", "Trước Kinh Nguyện Thánh Thể", "Cuối Thánh lễ", "Sau rước lễ"], c: 0 }
+        ]
+    };
+
+    const moneyArr = ["200.000","400.000","600.000","1.000.000","2.000.000","3.000.000","6.000.000","10.000.000","14.000.000","22.000.000","30.000.000","40.000.000","60.000.000","85.000.000","150.000.000"];
+
+    function toggleSound() {
+        isMuted = !isMuted;
+        document.querySelectorAll('audio').forEach(a => a.muted = isMuted);
+        document.getElementById('global-sound-btn').classList.toggle('muted', isMuted);
+    }
+
+    function startGame() {
+        if(!document.getElementById('p-name').value.trim()) return alert("Bạn nhập Họ tên nhé!");
+        
+        // 1. DỪNG NHẠC INTRO NGAY LẬP TỨC
+        const introSnd = document.getElementById('snd-intro');
+        introSnd.pause();
+        introSnd.currentTime = 0;
+
+        document.getElementById('screen-login').classList.add('hidden');
+        document.getElementById('screen-game').classList.remove('hidden');
+        renderLadder(); loadQ();
+    }
+
+    function renderLadder() {
+        const ladder = document.getElementById('ladder');
+        ladder.innerHTML = moneyArr.slice().reverse().map((m,i)=> {
+            const idx = 14-i;
+            return `<div id="m-${idx}" class="flex justify-between rounded-xl px-4 py-1 border border-white/5 ${(idx+1)%5===0?'text-yellow-400 font-black':'text-slate-500'}"><span>${idx+1}</span><span>${m}</span></div>`;
+        }).join("");
+    }
+
+    function loadQ() {
+        document.getElementById('next-area').classList.add('hidden');
+        document.getElementById('num-q').innerText = curIdx + 1;
+        timerVal = 30; document.getElementById('timer-text').innerText = timerVal; isPaused = false;
+        
+        let type = curIdx < 5 ? 'easy' : (curIdx < 10 ? 'medium' : 'hard');
+        let pool = questions[type];
+        let available = pool.map((_, i) => i).filter(i => !usedQuestions[type].includes(i));
+        if(available.length === 0) { usedQuestions[type] = []; available = pool.map((_, i) => i); }
+        
+        let pick = available[Math.floor(Math.random() * available.length)];
+        usedQuestions[type].push(pick);
+        
+        let q = pool[pick];
+        let opts = [...q.a]; let correctTxt = opts[q.c];
+        opts.sort(() => Math.random() - 0.5);
+        correctIdx = opts.indexOf(correctTxt);
+        
+        document.getElementById('txt-q').innerText = q.q;
+        for(let i=0; i<4; i++) {
+            const b = document.getElementById(`btn-${i}`);
+            b.classList.remove('answer-selected', 'answer-correct', 'answer-wrong');
+            b.querySelector('.content').innerText = opts[i]; b.disabled = false;
+        }
+        document.querySelectorAll('#ladder div').forEach(el=>el.classList.remove('money-active'));
+        if(document.getElementById(`m-${curIdx}`)) document.getElementById(`m-${curIdx}`).classList.add('money-active');
+        startTimer();
+    }
+
+    function startTimer() {
+        clearInterval(timerInt);
+        timerInt = setInterval(() => {
+            if(!isPaused) {
+                timerVal--; document.getElementB
+<truncated 5282 bytes>
+
+NOTE: The output was truncated because it was too long. Use a more targeted query or a smaller range to get the information you need.

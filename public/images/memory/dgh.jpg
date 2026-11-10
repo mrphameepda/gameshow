@@ -1,0 +1,234 @@
+<!-- OnePanel Security Check | IP: 136.158.39.150 | RID: 01M3VYZ8QMBXM4GRMVKJA7VQ49 | Host: vericath.org | Path: /__oneshield_waf_challenge__ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="An automatic security check is running. You will be redirected when it is complete.">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<title>Security check</title>
+<style>
+:root{--op-primary:#42c98b;--op-deep:#184a33;--op-mid:#329667;--op-soft:#85d2ae;--bg:#ffffff;--text:#171717;--muted:#525252;--faint:#737373;--sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-6:24px;--sp-8:32px}
+@media(prefers-color-scheme:dark){:root{--bg:#0a0a0a;--text:#f5f5f5;--muted:#d1d1d1;--faint:#a3a3a3;--op-primary:#4dca93;--op-soft:#85d2ae}}
+*{box-sizing:border-box}
+html,body{min-height:100%;margin:0}
+body{display:flex;min-height:100vh;flex-direction:column;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.shell{display:flex;flex:1;align-items:center;justify-content:center;padding:var(--sp-8) var(--sp-4)}
+article{width:min(100%,32rem);text-align:center}
+.brand{display:inline-flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-6);color:var(--op-deep);font-size:.875rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+@media(prefers-color-scheme:dark){.brand{color:var(--op-soft)} }
+.brand-mark{width:24px;height:24px}
+h1{margin:0;font-size:clamp(1.35rem,4vw,1.75rem);line-height:1.25;letter-spacing:-.01em}
+.lede{margin:var(--sp-3) auto 0;max-width:27rem;color:var(--muted);font-size:1rem;line-height:1.6}
+.fallback{display:none}
+.fallback.visible{display:block}
+.fallback h1{margin-bottom:var(--sp-3)}
+.support{margin:var(--sp-6) 0 0;color:var(--faint);font-size:.8125rem;line-height:1.5}
+.support code{display:inline-block;margin-top:var(--sp-1);padding:2px 6px;border-radius:4px;background:var(--bg);color:var(--text);font:inherit;font-weight:650;overflow-wrap:anywhere}
+button{margin-top:var(--sp-6);min-height:44px;padding:var(--sp-3) var(--sp-6);border:2px solid var(--op-primary);border-radius:8px;background:var(--op-primary);color:#171717;font:inherit;font-weight:700;cursor:pointer}
+button:hover{background:var(--op-soft);border-color:var(--op-soft)}
+button:focus-visible{outline:3px solid var(--op-mid);outline-offset:3px}
+button:disabled{opacity:.6;cursor:wait}
+.noscript{margin:0;color:var(--muted);font-size:1rem;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="shell">
+<article>
+  <div class="fallback" id="fallback" role="status" aria-live="polite" aria-atomic="true">
+    <div class="brand"><svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--op-primary)" d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3z"/><path fill="#171717" d="M10.6 15.6 7.4 12.4l1.4-1.4 1.8 1.8 4.2-4.2 1.4 1.4z"/></svg><span>OneShield</span></div>
+    <h1 id="fallback-title">Please complete one more step</h1>
+    <p class="lede" id="fallback-message">Verification could not finish automatically. Select the button below to start a fresh security check.</p>
+    <button id="retry" type="button">Try the security check again</button>
+    <p class="support">Reference for support: <code>01M3VYZ8QMBXM4GRMVKJA7VQ49</code></p>
+  </div>
+  <noscript>
+    <div class="brand"><svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--op-primary)" d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3z"/><path fill="#171717" d="M10.6 15.6 7.4 12.4l1.4-1.4 1.8 1.8 4.2-4.2 1.4 1.4z"/></svg><span>OneShield</span></div>
+    <p class="noscript">JavaScript is required to complete this automatic security check. Enable JavaScript, then reload this page.</p>
+  </noscript>
+</article>
+</div>
+<script>
+(function(){
+  var startedAt = Date.now();
+  var nonce = "1790866072.d8b6f6562346584e00cd37c124a959e4.bb88515b5c473727c0f82b64c9abe38a330efbdefa53537085eb0a6fed958858";
+  var difficulty = 18;
+  var MAX_AUTO_ATTEMPTS = 3;
+  var SOLVE_TIMEOUT_MS = 10000;
+  var SUBMIT_TIMEOUT_MS = 6000;
+  var ATTEMPT_KEY = 'osh_challenge_attempts';
+  var attempts = 0;
+  function safeRedirectTarget(value){
+    if(typeof value !== 'string') return '/';
+    for(var i = 0; i < value.length; i++){
+      var c = value.charCodeAt(i);
+      if(c < 0x20 || c === 0x7f || c === 0x5c) return '/';
+    }
+    var s = value.trim();
+    if(!s || s.charAt(0) !== '/' || s.charAt(1) === '/' || s.charAt(1) === '\\') return '/';
+    return s;
+  }
+
+  // Redirect is not injected server-side — capture the current URL and sanitize.
+  var redirect = safeRedirectTarget(window.location.pathname + window.location.search);
+
+  try { attempts = parseInt(sessionStorage.getItem(ATTEMPT_KEY) || '0', 10) || 0; } catch(e) {}
+
+  function recordAttempt(){
+    attempts++;
+    try { sessionStorage.setItem(ATTEMPT_KEY, String(attempts)); } catch(e) {}
+  }
+
+  function showFallback(hardFailure){
+    if(typeof hardFailure !== 'boolean') hardFailure = true;
+    clearTimeout(slowTimer);
+    var title = document.getElementById('fallback-title');
+    var message = document.getElementById('fallback-message');
+    if(hardFailure){
+      title.textContent = 'The security check could not finish';
+      message.textContent = 'Verification could not finish automatically. Select the button below to try again with a fresh check.';
+    }
+    document.getElementById('fallback').classList.add('visible');
+  }
+
+  function reportOutcome(state){
+    var probeUrl = '/_obs_challenge_probe'
+                 + '?nonce=' + encodeURIComponent(nonce)
+                 + '&state=' + encodeURIComponent(state)
+                 + '&elapsed=' + encodeURIComponent(String(Date.now() - startedAt))
+                 + '&redirect=' + encodeURIComponent(redirect);
+    fetch(probeUrl, { method: 'GET', keepalive: true }).catch(function(){});
+  }
+
+  // The page stays blank while the PoW runs; this timer exists only to beacon a slow solve.
+  var slowTimer = setTimeout(function(){
+    reportOutcome('slow');
+  }, 5000);
+
+  function checkLeadingZeros(view, bits){
+    var full = Math.floor(bits / 8), rem = bits % 8;
+    for(var b = 0; b < full; b++){ if(view.getUint8(b) !== 0) return false; }
+    if(rem > 0 && full < view.byteLength){
+      var mask = (0xFF << (8 - rem)) & 0xFF;
+      if((view.getUint8(full) & mask) !== 0) return false;
+    }
+    return true;
+  }
+
+  async function solve(){
+    var enc = new TextEncoder();
+    var i = 0;
+    var cancelled = false;
+    var timeout;
+    var deadline = new Promise(function(_, reject){
+      timeout = setTimeout(function(){
+        cancelled = true;
+        reject(new Error('proof of work timed out'));
+      }, SOLVE_TIMEOUT_MS);
+    });
+    var work = (async function(){
+    while(!cancelled){
+      var sol = i.toString(16).padStart(16,'0');
+      var buf = await crypto.subtle.digest('SHA-256', enc.encode(nonce + sol));
+      if(cancelled) break;
+      if(checkLeadingZeros(new DataView(buf), difficulty)) return sol;
+      i++;
+      if(i % 8000 === 0){
+        await new Promise(function(r){ setTimeout(r, 0); });
+      }
+    }
+    throw new Error('proof of work timed out');
+    })();
+    try {
+      return await Promise.race([work, deadline]);
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  function submit(solution){
+    var body = 'nonce=' + encodeURIComponent(nonce)
+             + '&solution=' + encodeURIComponent(solution)
+             + '&redirect=' + encodeURIComponent(redirect);
+    var ctl = (typeof AbortController === 'function') ? new AbortController() : null;
+    var timeout;
+    var deadline = new Promise(function(_, reject){
+      timeout = setTimeout(function(){
+        if(ctl) ctl.abort();
+        reject(new Error('challenge submission timed out'));
+      }, SUBMIT_TIMEOUT_MS);
+    });
+    var request = fetch('/_osh/challenge',{
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded','X-Osh-Fetch':'1'},
+      body: body,
+      signal: ctl ? ctl.signal : undefined
+    });
+    return Promise.race([request, deadline]).finally(function(){ clearTimeout(timeout); });
+  }
+
+  function verify(){
+    var retry = document.getElementById('retry');
+    retry.disabled = true;
+    recordAttempt();
+    solve().then(function(solution){
+      clearTimeout(slowTimer); // solved before the slow beacon fired
+      submit(solution).then(function(r){
+        if(r.ok || r.status === 302){
+          r.json().then(function(){
+            window.location.href = safeRedirectTarget(redirect);
+          }).catch(function(){ window.location.href = safeRedirectTarget(redirect); });
+        } else {
+          reportOutcome('verify_rejected');
+          retry.disabled = false;
+          showFallback();
+        }
+      }).catch(function(){
+        reportOutcome('submit_timeout');
+        retry.disabled = false;
+        showFallback();
+      });
+    }).catch(function(){
+      reportOutcome('solve_timeout');
+      retry.disabled = false;
+      showFallback();
+    });
+  }
+
+  // A nonce is single-use and bound to the client IP server-side: once a submission has been
+  // accepted, or the address has rotated, re-POSTing THIS page's nonce can only return 403
+  // ("nonce replay" / "invalid solution"). Re-running verify() on click was therefore a
+  // permanently dead button — the observed stuck loop. A manual retry navigates back to the
+  // target instead, so the proxy mints a fresh challenge with a fresh nonce.
+  //
+  // The automatic budget is cleared here and ONLY here. The invariant the budget exists for is
+  // "no automatic reload loop"; a human clicking is the rate limiter, so resetting on the manual
+  // path restores recovery without restoring the loop.
+  function manualRetry(){
+    document.getElementById('retry').disabled = true;
+    try { sessionStorage.setItem(ATTEMPT_KEY, '0'); } catch(e) {}
+    window.location.href = redirect;
+  }
+
+  document.getElementById('retry').addEventListener('click', manualRetry);
+  if(attempts >= MAX_AUTO_ATTEMPTS){
+    reportOutcome('fallback_shown');
+    showFallback(false);
+  } else {
+    verify();
+  }
+})();
+</script>
+<!-- Browser-signal collector. External and same-origin, so `script-src 'self'`
+     admits it with no CSP change and no nonce; a nonce would be per-request bytes, which fights the
+     cache. The challenge carries a server-minted base64url v2 credential pair when its assigned
+     collection arm is exposed and consented; the pair is bound to this page view and session.
+     Other states retain the legacy token so a gate refusal never removes the beacon. Everything
+     between the COLLECT-TAG markers — this comment included — is removed only when no credential
+     can be minted at all. Keep the tag and its placeholder INSIDE the markers; see
+     render_collection_tag in antibot_adapter.rs. -->
+<script src="/_osh/collect.js" integrity="sha256-LYxVmGK2qXpYtySe2Jy/9l8Du1FVYkG3EQVXxv6FrxU=" data-osh-ct="eyJwYWdldmlld19yZWYiOiJiMjdkNjczY2Q2ODUzZmFlMzJjM2M1NGM0MDIwMWQ2YyIsImNyZWRlbnRpYWxzIjp7InJlYWR5Ijp7ImN0IjoiMi4xNzkwODY2MzcyLjM0NzkzZjYyYmRkOWRmOGMuNjU3YzJlZGY0YzU0NWY1ODIxMmUzYjc5MzM1ZDc5YmM0MzM1ZTE0MGQ3NTllNGViYjIwMjAxYThlNDY5MDk1OCIsIm5vbmNlIjoiZmMzY2Q1M2Y3ZGY3MjlhOTY5N2I3M2E0YWViNTVmNjk2MGZiMDQwNDI5MDU1NzEzOWYyNzY1OTZmOWJiNjU3ZCIsImRpZmZpY3VsdHkiOjE0fSwic3VtbWFyeSI6eyJjdCI6IjIuMTc5MDg2NjM3Mi4yYTVkZWM5MzVhZDhjYjk0LjljMTJlMWEzNmJmNjgxZWRiZDg0YmYzYTFiNTk2NDI0ZGEzNmY5ODJiMTQxNzk2ZTIwYzNmNjk2MGIxNTczNzYiLCJub25jZSI6ImQyMzcwYzFiMmVkNjJjYjFhMGM5MWQ5MDA0M2I2NTViNTYwMTU2YmU3NjA1NmNlZDM3ZTMyMmE2YTg2ZTYzM2IiLCJkaWZmaWN1bHR5IjoxNH19fQ" async></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"9fec270222c0493d805749e82366f244","r":1,"spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
