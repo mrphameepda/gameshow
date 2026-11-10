@@ -32,7 +32,7 @@ export function HomePage() {
   const tabs = ['TẤT CẢ', 'ĐUA TOP', 'SINH HOẠT', 'CÔNG CỤ'] as const
 
   return (
-    <div className="w-full min-h-screen bg-[#F1F7FD] pt-20 md:pt-24 pb-16 px-4">
+    <div className="w-full min-h-screen bg-[#F1F7FD] pt-20 md:pt-24 pb-24 md:pb-16 px-4">
       {/* ======================================================== */}
       {/* TIER 1: HERO BANNER & DAILY QUEST (FULL WIDTH)             */}
       {/* ======================================================== */}

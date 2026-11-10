@@ -17,6 +17,7 @@ import MemoryGame from './games/lat-hinh'
 import CrosswordGame from './games/o-chu-kinh-thanh'
 import Header from './components/Header'
 import Footer from './components/Footer'
+import { MobileBottomToolbar } from './components/MobileBottomToolbar'
 import { AboutPage } from './pages/AboutPage'
 import { ContactPage } from './pages/ContactPage'
 import { PolicyPage } from './pages/PolicyPage'
@@ -52,6 +53,7 @@ function AppLayout() {
       </main>
 
       {!isPlayingGame && <Footer />}
+      <MobileBottomToolbar />
     </div>
   )
 }
