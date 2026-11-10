@@ -159,9 +159,15 @@ body {
 .sticker-3d-wrapper {
   position: relative;
   display: inline-block;
-  filter: drop-shadow(0 6px 0px #034694)
-          drop-shadow(0 10px 0px #022a5c)
-          drop-shadow(0 16px 20px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 3px 0px #0369a1)
+          drop-shadow(0 6px 10px rgba(0, 0, 0, 0.25));
+}
+
+.sticker-3d-wrapper-gold {
+  position: relative;
+  display: inline-block;
+  filter: drop-shadow(0 3px 0px #b45309)
+          drop-shadow(0 6px 12px rgba(180, 83, 9, 0.3));
 }
 
 /* ─── Font Hoạt Hình Cookii Display ──────────────────── */
@@ -527,19 +533,42 @@ body {
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
     
-    /* Đổ bóng khối 3D khít mịn màng, dùng màu xanh biển tươi để làm nổi chữ trắng */
+    /* Đổ bóng khối 3D khít mịn màng, giảm độ dày stroke viền để rõ chữ */
     text-shadow: 
-      /* Viền sticker bảo vệ */
+      /* Viền nhẹ bảo vệ nét chữ sắc sảo */
       -1px -1px 0 #0284c7,  1px -1px 0 #0284c7, -1px  1px 0 #0284c7,  1px  1px 0 #0284c7,
-      /* Khối 3D xếp chồng siêu mịn không kẽ hở */
+      /* Khối 3D xếp chồng gọn gàng */
       0px 1px 0px #0284c7,
-      0px 2px 0px #0284c7,
+      0px 2px 0px #0369a1,
       0px 3px 0px #0369a1,
-      0px 4px 0px #0369a1,
-      0px 5px 0px #075985,
-      0px 6px 0px #0c4a6e,
-      /* Bóng đổ lơ lửng xuống nền */
-      0px 8px 12px rgba(12, 74, 110, 0.3);
+      0px 4px 0px #075985,
+      /* Bóng đổ lơ lửng */
+      0px 6px 10px rgba(12, 74, 110, 0.25);
+  }
+
+  /* Style 3D vàng cam sáng rõ, viền mỏng nhẹ cho THẦY GIÊSU */
+  .text-game-3d-gold {
+    font-family: 'CookiiDisplay', sans-serif;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    line-height: 1.15;
+    
+    /* Ruột chữ màu trắng ánh vàng sáng rực, siêu rõ nét */
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    
+    /* Khối 3D chuyển từ vàng chanh sang cam ấm, viền thanh mảnh */
+    text-shadow: 
+      /* Viền chữ mảnh nhẹ */
+      -1px -1px 0 #f59e0b,  1px -1px 0 #f59e0b, -1px  1px 0 #f59e0b,  1px  1px 0 #f59e0b,
+      /* Khối 3D vàng cam */
+      0px 1px 0px #f59e0b,
+      0px 2px 0px #d97706,
+      0px 3px 0px #d97706,
+      0px 4px 0px #b45309,
+      0px 5px 0px #92400e,
+      /* Bóng đổ nổi bật xuống nền */
+      0px 6px 12px rgba(180, 83, 9, 0.35);
   }
 }
 

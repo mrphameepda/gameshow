@@ -165,25 +165,17 @@ export function HeroBanner({ onStartClick }: HeroBannerProps) {
             <div className="sticker-3d-wrapper animate-cartoon-bounce-1">
               <h1 
                 style={{ fontFamily: "'CookiiDisplay', 'CookiiLocal', 'Fredoka', 'Baloo 2', cursive, sans-serif" }}
-                className="text-5xl sm:text-6xl md:text-7xl font-bold uppercase leading-tight text-game-3d-v3"
+                className="text-5xl sm:text-6xl md:text-7xl font-bold uppercase leading-tight text-game-3d-v3 tracking-wide"
               >
                 VUI HỌC CÙNG
               </h1>
             </div>
-            <div className="sticker-3d-wrapper animate-cartoon-bounce-2 mt-1">
+            <div className="sticker-3d-wrapper-gold animate-cartoon-bounce-2 mt-1.5">
               <h1 
                 style={{ fontFamily: "'CookiiDisplay', 'CookiiLocal', 'Fredoka', 'Baloo 2', cursive, sans-serif" }}
-                className="text-5xl sm:text-6xl md:text-7xl font-bold uppercase leading-tight text-game-3d-v3"
+                className="text-5xl sm:text-6xl md:text-7xl font-bold uppercase leading-tight text-game-3d-gold tracking-wide"
               >
-                <span 
-                  className="inline-block bg-gradient-to-b from-amber-300 via-yellow-400 to-orange-500 bg-clip-text text-transparent"
-                  style={{ 
-                    WebkitTextFillColor: 'transparent',
-                    filter: 'drop-shadow(0px 1px 0px #b45309) drop-shadow(0px 3px 0px #78350f) drop-shadow(0px 6px 8px rgba(120,53,15,0.4))'
-                  }}
-                >
-                  THẦY GIÊSU
-                </span>
+                THẦY GIÊSU
               </h1>
             </div>
 
